@@ -12,6 +12,10 @@ AudioEngine::AudioEngine()
     // Activate volume interface
     pDevice->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_ALL, NULL, (void**)&pEndpointVolume);
 
+    
+    // Count of channels in audio stream that enter/leave audio enpoint
+    UINT ChannelCount = 0;
+
     // https://learn.microsoft.com/en-us/windows/win32/api/endpointvolume/nf-endpointvolume-iaudioendpointvolume-getchannelcount
     pEndpointVolume->GetChannelCount(&ChannelCount);
 
@@ -28,9 +32,6 @@ AudioEngine& AudioEngine::Get()
 
 float AudioEngine::GenVolLevel() { return Get().InternalGenVol(); }
 
-// Count of channels in audio stream that enter/leave audio enpoint
-UINT ChannelCount = 0;
-
 // Cleanup
 AudioEngine::~AudioEngine()
 {
@@ -44,6 +45,8 @@ float AudioEngine::InternalGenVol()
 { 
     float vol = 0;
 
-    // Volume for channel 0
-    return pEndpointVolume->GetChannelVolumeLevelScalar(0, &vol);
+    // Update volume level for channel 0 (CBR)
+    pEndpointVolume->GetChannelVolumeLevelScalar(0, &vol);
+
+    return vol;
 }
