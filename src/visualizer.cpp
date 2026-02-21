@@ -1,5 +1,4 @@
 #include "../inc/visualizer.hpp"
-#include "../inc/engine.hpp" // to call singleton (implement later)
 
 #include <iostream>
 

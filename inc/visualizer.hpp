@@ -1,10 +1,14 @@
 #ifndef VISUALIZER_HPP
 #define VISUALIZER_HPP
 
+#include "../inc/engine.hpp"
+
 class RenderEqualizer {
 public:
     int Get() { return x; }
-    void Display();
+    void Display() {
+        float vol = AudioEngine::Get().GenVolLevel();
+    };
     
     /* To implement:
     function to call functions of singleton
