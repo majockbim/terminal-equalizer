@@ -1,16 +1,19 @@
 #include "../inc/visualizer.hpp"
-#include "../inc/engine.hpp" // to call singleton (implement later)
 
 #include <iostream>
 
 void RenderEqualizer::Display() {
-    std::cout << "Value of x: " << x << "\n";
-}
+    int level;
+    float temp;
+    float vol;
+    while(true) {
+        vol = AudioEngine::Get().GenVolLevel();
+        temp = vol * 9.0;
+        level = (int)temp;
 
-int main() {
-    RenderEqualizer vis;
-
-    vis.Display();
-
-    return 0;
+        if(vol == 0.0)
+        {
+        std::cout << "\r" << " " << "          " << std::flush;
+        } else std::cout << "\r" << levels[level] << "          " << std::flush;
+    }
 }

@@ -1,18 +1,9 @@
-#include <inc/engine.hpp>
+#include "../inc/engine.hpp"
 
-
-/*
-#include <iostream>
-#include <inc/visualizer.hpp>
-#include <inc/engine.hpp>
-
-int main() {
+// Initialize object
+AudioEngine::AudioEngine() 
+{ 
     CoInitialize(NULL);
-    
-    // Initializations
-    IMMDeviceEnumerator* pEnumerator = NULL;
-    IMMDevice* pDevice = NULL;
-    IAudioEndpointVolume* pEndpointVolume = NULL;
 
     // Get the default audio endpoint
     CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (void**)&pEnumerator);
@@ -21,33 +12,41 @@ int main() {
     // Activate volume interface
     pDevice->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_ALL, NULL, (void**)&pEndpointVolume);
 
-    // Get a count of channels in audio stream that enter/leave audio enpoint
+    
+    // Count of channels in audio stream that enter/leave audio enpoint
     UINT ChannelCount = 0;
 
     // https://learn.microsoft.com/en-us/windows/win32/api/endpointvolume/nf-endpointvolume-iaudioendpointvolume-getchannelcount
+    pEndpointVolume->GetChannelCount(&ChannelCount);
+
+    // https://learn.microsoft.com/en-us/windows/win32/api/endpointvolume/nf-endpointvolume-iaudioendpointvolume-getchannelcount
     HRESULT result = pEndpointVolume->GetChannelCount(&ChannelCount);
+}
 
-    std::cout << "Result: " << result << "\n";
-    std::cout << "Channel Count: " << ChannelCount;
+// Access class statically
+AudioEngine& AudioEngine::Get()
+{
+    static AudioEngine instance;
+    return instance;
+}
 
+float AudioEngine::GenVolLevel() { return Get().InternalGenVol(); }
 
-    // Print volume level
-    while(true) {
-
-        float vol = 0;
-
-        pEndpointVolume->GetChannelVolumeLevelScalar(0, &vol);
-
-        std::cout << vol << "\n";
-
-    }
-
-    // cleanup
+// Cleanup
+AudioEngine::~AudioEngine()
+{
     pEndpointVolume->Release();
     pDevice->Release();
     pEnumerator->Release();
     CoUninitialize();
-
-    return 0;
 }
-*/
+
+float AudioEngine::InternalGenVol() 
+{ 
+    float vol = 0;
+
+    // Update volume level for channel 0 (CBR)
+    pEndpointVolume->GetChannelVolumeLevelScalar(0, &vol);
+
+    return vol;
+}

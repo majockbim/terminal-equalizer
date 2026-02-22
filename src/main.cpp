@@ -6,10 +6,7 @@ int main() {
     // Init visualizer object
     RenderEqualizer test;
 
-    // continuous loop displaying data
-    for(;;) {
-        std::cout << test.Get() << "\n";
-    }
+    test.Display();
 
     return 0;
 }

@@ -1,9 +1,13 @@
 #ifndef VISUALIZER_HPP
 #define VISUALIZER_HPP
 
+#include "../inc/engine.hpp"
+
+#include <vector>
+#include <string>
+
 class RenderEqualizer {
 public:
-    int Get() { return x; }
     void Display();
     
     /* To implement:
@@ -13,6 +17,19 @@ public:
 
 private:
     int x = 0;
+
+    std::vector<std::string> levels = 
+    {   "#", 
+        "##",
+        "###",
+        "####", 
+        "#####", 
+        "######", 
+        "#######", 
+        "########", 
+        "#########", 
+        "##########"
+    };
 };
 
 #endif
