@@ -11,9 +11,7 @@ void RenderEqualizer::Display() {
         temp = vol * 9.0;
         level = (int)temp;
 
-        if(vol == 0.0)
-        {
-        std::cout << "\r" << " " << "          " << std::flush;
-        } else std::cout << "\r" << levels[level] << "          " << std::flush;
+        if(vol == 0.0) std::cout << "\r" << " " << "          " << std::flush;
+        else std::cout << "\r" << levels[level] << "          " << std::flush;
     }
 }
