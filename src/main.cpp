@@ -1,4 +1,4 @@
-#include "../inc/visualizer.hpp"
+#include "../inc/ui/visualizer.hpp"
 #include <iostream>
 
 int main() {

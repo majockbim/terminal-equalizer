@@ -1,7 +1,7 @@
 #ifndef VISUALIZER_HPP
 #define VISUALIZER_HPP
 
-#include "../inc/engine.hpp"
+#include "../inc/audio/engine.hpp"
 
 #include <vector>
 #include <string>
