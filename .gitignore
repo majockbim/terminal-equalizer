@@ -2,3 +2,7 @@
 *.exe
 .vscode
 \executables
+/third_party/*
+!/third_party/inc
+!/third_party/lib
+!/third_party/src
