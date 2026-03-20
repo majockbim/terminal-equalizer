@@ -15,6 +15,9 @@ public:
 
     float GenVolLevel();
 
+    // todo: get audio which is passable via an array of floats/doubles
+    float FloatVolume();
+
 private:
     // Initialize object
     AudioEngine();
