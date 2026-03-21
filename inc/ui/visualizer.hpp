@@ -8,12 +8,8 @@
 
 class RenderEqualizer {
 public:
-    void Display();
-    
-    /* To implement:
-    function to call functions of singleton
-
-    */
+    void Display(); // general volume level
+    void DisplayBuffer(); // print float values of buffer
 
 private:
     int x = 0;
