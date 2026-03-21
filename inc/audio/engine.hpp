@@ -6,7 +6,10 @@
 #include <endpointvolume.h>
 #include <audioclient.h>
 #include <mmeapi.h>
+#include <iostream>
 #include <vector>
+#include <thread>
+#include <chrono>
 
 class AudioEngine {
 public:

@@ -12,7 +12,9 @@ int main() {
     
     RenderEqualizer o;
     // o.Display();
+    while(true) {
     o.DisplayBuffer();
+    }
 
     return 0;
 }

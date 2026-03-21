@@ -1,5 +1,4 @@
 #include "../inc/audio/engine.hpp"
-#include <iostream>
 
 // Initialize object
 AudioEngine::AudioEngine() 
@@ -37,6 +36,9 @@ AudioEngine::AudioEngine()
 
     // https://learn.microsoft.com/en-us/windows/win32/api/endpointvolume/nf-endpointvolume-iaudioendpointvolume-getchannelcount
     HRESULT result = pEndpointVolume->GetChannelCount(&ChannelCount);
+
+    // allow time for everything to process before moving on (20ms)
+    std::this_thread::sleep_for(std::chrono::milliseconds(20));
 }
 
 // Access class statically
@@ -123,6 +125,7 @@ std::vector<float> AudioEngine::InternalBuffer()
 
         // check if there is another packet waiting
         hr = pAudioCaptureClient->GetNextPacketSize(&packetLength);
+
     }
 
     return buffer;
