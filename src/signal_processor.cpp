@@ -8,10 +8,20 @@ SignalProcessor::SignalProcessor()
 
 void SignalProcessor::Accumulate()
 {
-
+    if(isFull) {
+        samples.clear();
+    } else {
+        samples.insert(samples.end(), AudioEngine::Get().GetCurrentBuffer().begin(), AudioEngine::Get().GetCurrentBuffer().end());
+    }
 }
 
-std::vector<float> GetFFTBuffer()
+std::vector<float> SignalProcessor::GetFFTBuffer()
+{   
+    return samples;
+}
+
+bool SignalProcessor::isFull()
 {
-    
+    if(samples.size() >= 2400) return true;
+    return false;
 }
