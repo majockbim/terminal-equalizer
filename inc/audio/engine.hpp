@@ -21,7 +21,7 @@ public:
 
     float GenVolLevel();
 
-    std::vector<float> GetCurrentBuffer();
+    std::vector<double> GetCurrentBuffer();
 
     // todo: get audio which is passable via an array of floats/doubles
     float FloatVolume();
@@ -44,12 +44,12 @@ private:
 
     // temp retreival functions 
     float InternalGenVol();
-    std::vector<float> InternalBuffer();
+    std::vector<double> InternalBuffer();
 
     // temp visualizer functions
     void DisplayMaster(); // display all audio samples
 
-    std::vector<float> buffer;
+    std::vector<double> buffer;
 
 };
 

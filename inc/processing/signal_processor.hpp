@@ -3,16 +3,18 @@
 
 #include "../audio/engine.hpp"
 #include <vector>
+#include <array>
+#include <algorithm>
 
 class SignalProcessor {
 public:
     SignalProcessor();
     void Accumulate();
-    std::vector<float> GetFFTBuffer();
+    std::array<double, 2400> GetFFTBuffer();
     bool isFull();
 
 private:
-    std::vector<float> samples;
+    std::vector<double> samples;
 
 };
 
