@@ -7,7 +7,7 @@
 
 #include "Array.h"
 #include "fftw++.h"
-#include "signal_processor.hpp"
+#include "../processing/signal_processor.hpp"
 
 #include <cmath>
 #include <algorithm>
@@ -32,6 +32,8 @@ private:
 
     Array::array1<double> f;
     Array::array1<Complex> F;
+
+    fftwpp::rcfft1d* ForwardPlan = nullptr;
 public:
     FFTEngine();
     ~FFTEngine();
