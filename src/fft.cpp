@@ -57,7 +57,6 @@ std::vector<double> FFTEngine::Run(std::array<double, 2400>& audioBuffer)
 
         double dB = 20.0 * std::log10(normalized + 1e-12);
 
-        // from testing, silence is -240
         double dB_shift = dB + 240.0;
 
         magnitudes.push_back(dB_shift);

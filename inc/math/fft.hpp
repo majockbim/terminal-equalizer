@@ -3,14 +3,6 @@
 #include "../processing/signal_processor.hpp"
 #include "fftw3.h"
 
-/*
-// namespaces
-using namespace utils;
-using namespace fftwpp;
-using namespace Array; 
-using namespace parallel;
-*/
-
 class FFTEngine {
 private:
     int n;
