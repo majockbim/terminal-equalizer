@@ -85,3 +85,5 @@ cmake --build output
 **Third-Party Libraries**: <br>
 [FFTW (org)](https://www.fftw.org/) <br>
 [FFTW (GitHub)](https://github.com/FFTW/fftw3)
+
+GNU GENERAL PUBLIC LICENSE v3.0 (GPL-3.0)
