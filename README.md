@@ -1,5 +1,7 @@
 Spectral visualizer written in C++17 using the MinGW compiler (GCC version 15.2.0)
 
+<img width="800" height="450" alt="supernova" src="https://github.com/user-attachments/assets/0f85ec79-d0c6-49d9-859b-9d06db516774" />
+
 ## System Architecture
 Terminal Equalizer captures raw system audio directly from the soundcard, processes it through a real-time DSP pipeline, and renders it to the console without screen tearing.
 
