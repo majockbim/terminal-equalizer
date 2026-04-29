@@ -22,38 +22,51 @@
 AudioEngine::AudioEngine() 
 { 
     HRESULT hr;
-    CoInitialize(NULL);
 
     // Get the default audio endpoint
     hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (void**)&pEnumerator);
+    if (FAILED(hr)) return;
+
     hr = pEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &pDevice);
+    if (FAILED(hr)) return;
 
     // Activate general volume interface
     hr = pDevice->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_ALL, NULL, (void**)&pEndpointVolume);
 
     // Activate sample/buffer interface
     hr = pDevice->Activate(__uuidof(IAudioClient), CLSCTX_ALL, NULL, (void**)&pAudioClient);
+    if (FAILED(hr)) return;
 
     // Mix Format = How client captures
     hr = pAudioClient->GetMixFormat(&pWAVEFORMATEX);
+    if (FAILED(hr)) return;
+
+    bitsPerSample = pWAVEFORMATEX->wBitsPerSample;
+    nChannels = pWAVEFORMATEX->nChannels;
+    
+    if (pWAVEFORMATEX->wFormatTag == WAVE_FORMAT_IEEE_FLOAT) {
+        isFloat = true;
+    } else if (pWAVEFORMATEX->wFormatTag == WAVE_FORMAT_EXTENSIBLE) {
+        WAVEFORMATEXTENSIBLE* pEx = (WAVEFORMATEXTENSIBLE*)pWAVEFORMATEX;
+        // Check for KSDATAFORMAT_SUBTYPE_IEEE_FLOAT: {00000003-0000-0010-8000-00aa00389b71}
+        if (pEx->SubFormat.Data1 == 0x00000003 && pEx->SubFormat.Data2 == 0x0000 && pEx->SubFormat.Data3 == 0x0010 &&
+            pEx->SubFormat.Data4[0] == 0x80 && pEx->SubFormat.Data4[1] == 0x00 && pEx->SubFormat.Data4[2] == 0x00 &&
+            pEx->SubFormat.Data4[3] == 0xAA && pEx->SubFormat.Data4[4] == 0x00 && pEx->SubFormat.Data4[5] == 0x38 &&
+            pEx->SubFormat.Data4[6] == 0x9B && pEx->SubFormat.Data4[7] == 0x71) {
+            isFloat = true;
+        }
+    }
 
     //initialize for loopback
     hr = pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_LOOPBACK, 10000000, 0, pWAVEFORMATEX, NULL);
+    if (FAILED(hr)) return;
 
     // get capture service
     hr = pAudioClient->GetService(__uuidof(IAudioCaptureClient), (void**)&pAudioCaptureClient);
+    if (FAILED(hr)) return;
 
     // start audio client
     hr = pAudioClient->Start();
-
-    // Count of channels in audio stream that enter/leave audio enpoint
-    UINT ChannelCount = 0;
-
-    // https://learn.microsoft.com/en-us/windows/win32/api/endpointvolume/nf-endpointvolume-iaudioendpointvolume-getchannelcount
-    hr = pEndpointVolume->GetChannelCount(&ChannelCount);
-
-    // https://learn.microsoft.com/en-us/windows/win32/api/endpointvolume/nf-endpointvolume-iaudioendpointvolume-getchannelcount
-    HRESULT result = pEndpointVolume->GetChannelCount(&ChannelCount);
 
     // allow time for everything to process before moving on (20ms)
     std::this_thread::sleep_for(std::chrono::milliseconds(20));
@@ -80,9 +93,9 @@ std::vector<double> AudioEngine::GetCurrentBuffer()
 AudioEngine::~AudioEngine()
 {
     // general volume
-    pEndpointVolume->Release();
-    pDevice->Release();
-    pEnumerator->Release();
+    if (pEndpointVolume) pEndpointVolume->Release();
+    if (pDevice) pDevice->Release();
+    if (pEnumerator) pEnumerator->Release();
 
     // audio samples
     if (pAudioCaptureClient) pAudioCaptureClient->Release();
@@ -92,13 +105,12 @@ AudioEngine::~AudioEngine()
     if (pWAVEFORMATEX) {
         CoTaskMemFree(pWAVEFORMATEX); // [4]
     }
-
-    CoUninitialize();
 }
 
 float AudioEngine::InternalGenVol() 
 { 
     float vol = 0;
+    if (!pEndpointVolume) return 0;
 
     // Update volume level for channel 0 (CBR)
     pEndpointVolume->GetChannelVolumeLevelScalar(0, &vol);
@@ -110,12 +122,11 @@ float AudioEngine::InternalGenVol()
 std::vector<double> AudioEngine::InternalBuffer()
 {
     UINT32 packetLength = 0;
+    if (!pAudioCaptureClient) return {};
+
     HRESULT hr = pAudioCaptureClient->GetNextPacketSize(&packetLength);
 
-    // clear previous data
-    if(packetLength != 0) {
-        buffer.clear();
-    }
+    buffer.clear();
 
     while(packetLength != 0)
     {
@@ -125,16 +136,38 @@ std::vector<double> AudioEngine::InternalBuffer()
 
         // lock windows audio buffer
         hr = pAudioCaptureClient->GetBuffer(&pData, &availableFrames, &flags, NULL, NULL);
+        if (FAILED(hr)) break;
 
-        // cast raw bytes into doubles
-        double* fData = (double*)pData;
-
-        for(UINT32 i = 0; i < availableFrames; ++i)
-        {
-            // *2 for left and right values of stereo :) ([left][right])
-            double left = fData[i * 2];
-            double right = fData[i * 2 + 1];
-            buffer.push_back((left + right) / 2.0f);
+        if (isFloat) {
+            float* fData = (float*)pData;
+            for(UINT32 i = 0; i < availableFrames; ++i)
+            {
+                double sum = 0;
+                for (int c = 0; c < nChannels; ++c) {
+                    sum += fData[i * nChannels + c];
+                }
+                buffer.push_back(sum / (double)nChannels);
+            }
+        } else if (bitsPerSample == 64) {
+            double* fData = (double*)pData;
+            for(UINT32 i = 0; i < availableFrames; ++i)
+            {
+                double sum = 0;
+                for (int c = 0; c < nChannels; ++c) {
+                    sum += fData[i * nChannels + c];
+                }
+                buffer.push_back(sum / (double)nChannels);
+            }
+        } else if (bitsPerSample == 16) {
+            short* fData = (short*)pData;
+            for(UINT32 i = 0; i < availableFrames; ++i)
+            {
+                double sum = 0;
+                for (int c = 0; c < nChannels; ++c) {
+                    sum += fData[i * nChannels + c];
+                }
+                buffer.push_back(sum / (double)nChannels / 32768.0);
+            }
         }
 
         // release lock
@@ -142,7 +175,6 @@ std::vector<double> AudioEngine::InternalBuffer()
 
         // check if there is another packet waiting
         hr = pAudioCaptureClient->GetNextPacketSize(&packetLength);
-
     }
 
     return buffer;

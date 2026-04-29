@@ -1,3 +1,4 @@
+#pragma once
 /*
     Terminal Equalizer - A real-time command line audio visualizer
     Copyright (C) 2026 Majock Bim
@@ -18,6 +19,7 @@
 
 #include <iostream>
 #include <cstddef>
+
 #include "../inc/ui/visualizer.hpp"
 #include "../inc/processing/signal_processor.hpp"
 #include "../inc/math/fft.hpp"
