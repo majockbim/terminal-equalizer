@@ -18,7 +18,7 @@ int main() {
                 auto magnitudes = fft.Run(pass);
                 std::lock_guard<std::mutex> lock(magMutex);
                 sharedMagnitudes = magnitudes;
-                std::cout << "audio: " << sharedMagnitudes.size() << "\n";
+                // std::cout << "audio: " << sharedMagnitudes.size() << "\n";
             }
         }
         CoUninitialize();
