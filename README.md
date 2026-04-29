@@ -3,7 +3,40 @@ Spectral visualizer written in C++17 using the MinGW compiler (GCC version 15.2.
 ## System Architecture
 Terminal Equalizer captures raw system audio directly from the soundcard, processes it through a real-time DSP pipeline, and renders it to the console without screen tearing.
 
-<img width="7720" height="1030" alt="flowchart" src="https://github.com/user-attachments/assets/d0bab9b1-71e3-4b6e-b8b1-fd6654bdc643" />
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'fontFamily': 'Comic Sans MS, Comic Neue, Chalkboard SE, cursive', 'lineColor': '#000000', 'primaryTextColor': '#000000', 'edgeLabelBackground':'#ffffff'}, 'flowchart': {'curve': 'basis'}}}%%
+graph LR
+    classDef default fill:#ffffff,stroke:#000000,stroke-width:2px,color:#000000
+    
+    subgraph T1 [Thread 1: Audio Capture]
+        A([WASAPI]) --> B[Accumulate<br/>Audio]
+        B --> C{2400<br/>Samples?}
+        C -->|No| B
+        C -->|Yes| D[Lock Mutex &<br/>Notify Ready]
+        D -->|Reset Index| B
+    end
+
+    subgraph Shared [Shared State]
+        M[(Thread-Safe<br/>readyBuffer)]
+    end
+
+    subgraph T2 [Thread 2: DSP & Render]
+        E{Buffer<br/>Ready?}
+        
+        %% The true self loop (Mermaid will force this into a square)
+        E -->|Wait| E
+        
+        E -->|Yes| F[Execute FFTW3<br/>& Decibel Math]
+        F --> G[Group to a # of Bins]
+        G --> H([Draw ASCII Bars<br/>Zero-Flicker])
+        H --> I[Reset Flag]
+        I -->|Loop| E
+    end
+
+    %% Data flow across threads
+    D == Copy Data ==> M
+    M == Read Data ==> E
+```
 
 ## The DSP Engine
 At the core of the visualizer is the **Discrete Fourier Transform (DFT)**, powered by the [FFTW3 C-API](https://www.fftw.org/). <br>
@@ -52,3 +85,5 @@ cmake --build output
 **Third-Party Libraries**: <br>
 [FFTW (org)](https://www.fftw.org/) <br>
 [FFTW (GitHub)](https://github.com/FFTW/fftw3)
+
+GNU GENERAL PUBLIC LICENSE v3.0 (GPL-3.0)
