@@ -17,11 +17,6 @@
 */
 
 #include "../inc/ui/visualizer.hpp"
-#include <iostream>
-#include <algorithm>
-#include <time.h>
-#include <stdlib.h>
-#include <cmath>
 
 void RenderEqualizer::Display() {
     int level;
@@ -106,8 +101,8 @@ void RenderEqualizer::EnableVisualizer(std::vector<double>& freq, std::mutex& ma
                     int binLow  = (int)(fLow * 1201 / (sampleRate / 2.f));
                     int binHigh = (int)(fHigh * 1201 / (sampleRate / 2.f));
                     
-                    binLow  = max(0, min(binLow, 1200));
-                    binHigh = max(0, min(binHigh, 1200));
+                    binLow  = std::max(0, std::min(binLow, 1200));
+                    binHigh = std::max(0, std::min(binHigh, 1200));
                     if (binLow >= binHigh) binHigh = binLow + 1;
                     if (binHigh > (int)freq.size()) binHigh = (int)freq.size();
                     

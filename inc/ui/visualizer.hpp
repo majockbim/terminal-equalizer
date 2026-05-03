@@ -28,6 +28,11 @@
 #include <chrono>
 #include <algorithm>
 
+#include <iostream>
+#include <time.h>
+#include <stdlib.h>
+#include <cmath>
+
 class RenderEqualizer {
 public:
     void Display(); // general volume level
