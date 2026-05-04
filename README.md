@@ -1,6 +1,26 @@
-Spectral visualizer written in C++17 using the MinGW compiler (GCC version 15.2.0)
 
-<img width="800" height="450" alt="supernova" src="https://github.com/user-attachments/assets/0f85ec79-d0c6-49d9-859b-9d06db516774" />
+<div align="center">
+
+  <img width="813" height="135" alt="spectrum - Copy" src="https://github.com/user-attachments/assets/aeecb34f-0132-4a16-acf4-084cd1a19049" />
+  
+  **A real-time, optimized C++ audio visualizer for the Windows console.**
+  
+  <!-- Badges -->
+  <a href="https://github.com/majockbim/spectrum/stargazers">
+    <img src="https://img.shields.io/github/stars/majockbim/Spectrum?style=flat&logo=github&color=4287f5" alt="Stars" />
+  </a>
+  <img src="https://img.shields.io/badge/C%2B%2B17-%2300599C.svg?style=flat&logo=c%2B%2B&logoColor=white" alt="C++17" />
+  <img src="https://img.shields.io/badge/Windows-0078D6?style=flat&logo=windows&logoColor=white" alt="Windows" />
+  <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat" alt="PRs Welcome" />
+  <a href="https://github.com/majockbim/spectrum/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/majockbim/Spectrum?style=flat&color=yellow" alt="License" />
+  </a>
+
+  <img width="800" height="260" alt="spectrum-ezgif com-video-to-gif-converter" src="https://github.com/user-attachments/assets/199c8057-843c-4021-84d8-cbcff293bef8" />
+
+</div>
+
+<br />
 
 ## System Architecture
 Terminal Equalizer captures raw system audio directly from the soundcard, processes it through a real-time DSP pipeline, and renders it to the console without screen tearing.
@@ -87,5 +107,3 @@ cmake --build output
 **Third-Party Libraries**: <br>
 [FFTW (org)](https://www.fftw.org/) <br>
 [FFTW (GitHub)](https://github.com/FFTW/fftw3)
-
-GNU GENERAL PUBLIC LICENSE v3.0 (GPL-3.0)
