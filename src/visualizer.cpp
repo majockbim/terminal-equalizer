@@ -1,6 +1,8 @@
 /*
     spectrum - A real-time command line audio visualizer
-    Copyright (C) 2026 Majock Bim
+    Copyright (C) 2026 Majock Bim (@majockbim)
+    Copyright (C) 2026 Joe R. (@johnmilson125-png)
+
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
