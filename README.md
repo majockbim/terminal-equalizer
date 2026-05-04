@@ -7,14 +7,16 @@
   
   <!-- Badges -->
   <a href="https://github.com/majockbim/spectrum/stargazers">
-    <img src="https://img.shields.io/github/stars/majockbim/Spectrum?style=flat&logo=github&color=4287f5" alt="Stars" />
+    <img src="https://img.shields.io/github/stars/majockbim/spectrum?style=flat&logo=github&color=4287f5" alt="Stars" />
   </a>
   <img src="https://img.shields.io/badge/C%2B%2B17-%2300599C.svg?style=flat&logo=c%2B%2B&logoColor=white" alt="C++17" />
   <img src="https://img.shields.io/badge/Windows-0078D6?style=flat&logo=windows&logoColor=white" alt="Windows" />
   <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat" alt="PRs Welcome" />
   <a href="https://github.com/majockbim/spectrum/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/majockbim/Spectrum?style=flat&color=yellow" alt="License" />
+    <img src="https://img.shields.io/github/license/majockbim/spectrum?style=flat&color=yellow" alt="License" />
   </a>
+
+  <br>
 
   <img width="520" alt="spectrum-ezgif com-video-to-gif-converter" src="https://github.com/user-attachments/assets/199c8057-843c-4021-84d8-cbcff293bef8" />
 
@@ -23,7 +25,7 @@
 <br/>
 
 ## System Architecture
-Terminal Equalizer captures raw system audio directly from the soundcard, processes it through a real-time DSP pipeline, and renders it to the console without screen tearing.
+**Spectrum** captures raw system audio directly from the soundcard, processes it through a real-time DSP pipeline, and renders it to the console without screen tearing.
 
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': { 'fontFamily': 'Comic Sans MS, Comic Neue, Chalkboard SE, cursive', 'lineColor': '#000000', 'primaryTextColor': '#000000', 'edgeLabelBackground':'#ffffff'}, 'flowchart': {'curve': 'basis'}}}%%
@@ -85,15 +87,15 @@ To make the output visually accurate to human hearing:
 
 ## Running It
 ```bash
-git clone https://github.com/majockbim/terminal-equalizer
-cd terminal-equalizer
+git clone https://github.com/majockbim/spectrum
+cd spectrum
 
 # Compile the project
 cmake -S . -B output -G "MinGW Makefiles"
 cmake --build output
 
 # Run!
-.\output\terminal-equalizer.exe
+.\output\spectrum.exe
 ```
 
 ## References & Libraries
