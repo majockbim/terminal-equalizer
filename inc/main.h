@@ -15,6 +15,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+
 #pragma once
 
 #include <cstddef>
@@ -24,3 +25,4 @@
 #include "../inc/ui/visualizer.hpp"
 #include "../inc/processing/signal_processor.hpp"
 #include "../inc/math/fft.hpp"
+#include "../inc/settings/settings.hpp"

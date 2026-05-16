@@ -96,6 +96,7 @@ For those who just want to run the visualizer without compiling:
 * **Windows 10/11**
 * **CMake** (v3.10+)
 * **FFTW3** (Pre-compiled binaries included in `third_party/`)
+* **yyjson** (included in `third_party/`)
 * **OpenMP** (Usually included with your compiler)
 
 ## Building from Source (Contributors)
@@ -150,7 +151,8 @@ The easiest way for Windows developers.
 
 **Third-Party Libraries**: <br>
 [FFTW (org)](https://www.fftw.org/) <br>
-[FFTW (GitHub)](https://github.com/FFTW/fftw3)
+[FFTW (GitHub)](https://github.com/FFTW/fftw3) <br>
+[yyjson (GitHub)](https://github.com/ibireme/yyjson) 
 
 ## Contributors
 A massive thank you to everyone who has helped build and optimize spectrum. <br>
