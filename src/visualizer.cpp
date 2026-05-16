@@ -1,8 +1,6 @@
 /*
-    spectrum - A real-time command line audio visualizer
-    Copyright (C) 2026 Majock Bim (@majockbim)
-    Copyright (C) 2026 Joe R. (@johnmilson125-png)
-
+    Terminal Equalizer - A real-time command line audio visualizer
+    Copyright (C) 2026 Majock Bim
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,8 +28,8 @@ inline _divide_number_t __cdecl SafeDivide(_In_ _divide_number_t a, _In_ _divide
 
 void RenderEqualizer::Display() {
     int level;
-    double temp;
-    double vol;
+    float temp;
+    float vol;
     while(AudioEngine::Get().IsRunning()) {
         vol = AudioEngine::Get().GenVolLevel();
         temp = vol * 9.0;
@@ -52,7 +50,17 @@ void RenderEqualizer::DisplayBuffer() {
     }
 }
 
-void RenderEqualizer::EnableVisualizer(std::vector<double>& freq, std::mutex& magMutex, int sampleRate, const JsonFileReader& jsonFileReader) 
+bool __cdecl IsCorrectRow(int row) {
+    int index = 0;
+    const int Rows[] = {1, 3, 6, 4, 8, 19, 13, 16, 45, 82, 17, 36};
+    while (index < sizeof(Rows) / sizeof(const int)) {
+        if (row == Rows[index]) return true;
+        index++;
+    }
+    return false;
+}
+
+void RenderEqualizer::EnableVisualizer(std::vector<double>& freq, std::mutex& magMutex, int sampleRate, JsonFileReader& jsonFileReader) 
 {
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
     termWidth  = csbi.srWindow.Right - csbi.srWindow.Left;
@@ -76,15 +84,6 @@ void RenderEqualizer::EnableVisualizer(std::vector<double>& freq, std::mutex& ma
     };
     size_t sizeOfTMM = sizeof(themeModeManager) / sizeof(const struct ThemeModeManager);
     enum ThemeMode themeMode = ThemeMode::Mode0;
-
-    size_t tmIndex = 0;
-    while (tmIndex < sizeOfTMM) {
-        if (strcmp(themeModeManager[tmIndex].themeModeName, jsonFileReader.currentTheme.themeMode) == 0) {
-            themeMode = themeModeManager[tmIndex].themeMode;
-            break;
-        }
-        tmIndex++;
-    }
     
     // switch to alternate screen buffer and hide cursor
     // \033[?1049h: switch to alternate buffer
@@ -93,10 +92,41 @@ void RenderEqualizer::EnableVisualizer(std::vector<double>& freq, std::mutex& ma
     // \033[?25l: hide cursor
     std::cout << "\033[?1049h\033[H\033[2J\033[?25l" << std::flush;
 
+    int codesIndex = 0;
+    int codesIndex1 = 0;
+    int timer = 0;
+    bool themeChanged = true;
+    int i1 = 0;
+
     while (AudioEngine::Get().IsRunning()) {
         GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-        termWidth  = csbi.srWindow.Right - csbi.srWindow.Left;
-        termHeight = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+        size_t index0 = 0;
+        size_t themesArraySize = jsonFileReader.themes.size();
+        while (index0 < themesArraySize) {
+            if (GetAsyncKeyState(jsonFileReader.themes.at(index0).key) & 0x8000) {
+                std::memcpy(&jsonFileReader.currentTheme, &jsonFileReader.themes.at(index0), sizeof(struct Theme));
+                strcpy_s(jsonFileReader.currentTheme.themeName, sizeof(jsonFileReader.currentTheme.themeName), jsonFileReader.themes.at(index0).themeName);
+                strcpy_s(jsonFileReader.currentTheme.themeId, sizeof(jsonFileReader.currentTheme.themeId), jsonFileReader.themes.at(index0).themeId);
+                strcpy_s(jsonFileReader.currentTheme.themeMode, sizeof(jsonFileReader.currentTheme.themeMode), jsonFileReader.themes.at(index0).themeMode);
+                themeChanged = true;
+            }
+            index0++;
+        }
+
+        if (themeChanged) {
+            size_t tmIndex = 0;
+            while (tmIndex < sizeOfTMM) {
+                if (strcmp(themeModeManager[tmIndex].themeModeName, jsonFileReader.currentTheme.themeMode) == 0) {
+                    themeMode = themeModeManager[tmIndex].themeMode;
+                    break;
+                }
+                themeChanged = false;
+                tmIndex++;
+            }
+        }
+        
+        termWidth  = csbi.srWindow.Right - csbi.srWindow.Left + 2;
+        termHeight = csbi.srWindow.Bottom - csbi.srWindow.Top + 2;
         if (termHeight != lastHeight || termWidth != lastWidth) {
             lastHeight = termHeight;
             lastWidth = termWidth;
@@ -115,6 +145,7 @@ void RenderEqualizer::EnableVisualizer(std::vector<double>& freq, std::mutex& ma
         }
 
         float masterVol = AudioEngine::Get().GenVolLevel();
+        bool firstTime = true;
 
         bool hasData = false;
         {
@@ -130,8 +161,8 @@ void RenderEqualizer::EnableVisualizer(std::vector<double>& freq, std::mutex& ma
                     int binLow  = (int)(fLow * 1201 / (sampleRate / 2.f));
                     int binHigh = (int)(fHigh * 1201 / (sampleRate / 2.f));
                     
-                    binLow  = std::max(0, std::min(binLow, 1200));
-                    binHigh = std::max(0, std::min(binHigh, 1200));
+                    binLow  = max(0, min(binLow, 1200));
+                    binHigh = max(0, min(binHigh, 1200));
                     if (binLow >= binHigh) binHigh = binLow + 1;
                     if (binHigh > (int)freq.size()) binHigh = (int)freq.size();
                     
@@ -210,7 +241,9 @@ void RenderEqualizer::EnableVisualizer(std::vector<double>& freq, std::mutex& ma
         const char* UTF8Codes[] = {
             "─", "│", "─", "│", "┌", "┐", "└", "┘", "├", "┤", "┬", "┴", "┼",
             "♪", "♫", "♬", "♩", "⣿", "⣶", "⣤", "⣀", "⡇", "#", "a", "b", "c", "e",
-            "f", "g", "h"
+            "f", "g", "h", "♬", "♬", " ", "C", "R", "E", "D", "I", "T", "S", " ", "♬", "♬",
+            " ", "♬", "C", "o", "l", "o", "r", "s", " ", "B", "y", " ", "J", "o", "e", ".", "r", "♬",
+            " ", "♬", "V", "i", "s", "u", "a", "l", "i", "z", "e", "r", " ", "B", "y", " ", "M", "j", "♬"
         };
         size_t sizeofCodes = sizeof(UTF8Codes) / sizeof(UTF8Codes[0]);
 
@@ -218,8 +251,11 @@ void RenderEqualizer::EnableVisualizer(std::vector<double>& freq, std::mutex& ma
         float rowB = 0;
         float rowC = 0;
         float effect = 1.0f;
+        int time = 100;
         for (int row = renderHeight; row > 0; row--) {
+            codesIndex1 = 0;
             for (int i = 0; i < N_BARS; i++) {
+                firstTime = false;
                 int barHeight = (int)(barValues[i] * renderHeight);
 
                 if (themeMode == ThemeMode::Mode4) {
@@ -231,13 +267,32 @@ void RenderEqualizer::EnableVisualizer(std::vector<double>& freq, std::mutex& ma
                 int color8BitRaw[3] = {
                     (int)((255 * rowA * effect) * (float)jsonFileReader.currentTheme.colorRed), 
                     (int)((255 * rowB * effect) * (float)jsonFileReader.currentTheme.colorGreen), 
-                    (int)((255 * rowC * effect) * (float)jsonFileReader.currentTheme.colorBlue)};
+                    (int)((255 * rowC * effect) * (float)jsonFileReader.currentTheme.colorBlue)
+                };
+
+                int color8BitRawbg[3] = {
+                    (int)((255 * rowA * effect) * (float)jsonFileReader.currentTheme.colorRed), 
+                    (int)((255 * rowB * effect) * (float)jsonFileReader.currentTheme.colorGreen), 
+                    (int)((255 * rowC * effect) * (float)jsonFileReader.currentTheme.colorBlue)
+                };
+
+                unsigned char color8Bitbg[3] = {
+                    (color8BitRawbg[0] > 255) ? (unsigned char)255 : (unsigned char)color8BitRawbg[0],
+                    (color8BitRawbg[1] > 255) ? (unsigned char)255 : (unsigned char)color8BitRawbg[1],
+                    (color8BitRawbg[2] > 255) ? (unsigned char)255 : (unsigned char)color8BitRawbg[2]
+                };
 
                 unsigned char color8Bit[3] = {
                     (color8BitRaw[0] > 255) ? (unsigned char)255 : (unsigned char)color8BitRaw[0],
                     (color8BitRaw[1] > 255) ? (unsigned char)255 : (unsigned char)color8BitRaw[1],
                     (color8BitRaw[2] > 255) ? (unsigned char)255 : (unsigned char)color8BitRaw[2]
                 };
+                if (codesIndex >= sizeofCodes) {
+                    codesIndex = 0;
+                }
+                if (codesIndex1 + codesIndex >= sizeofCodes) {
+                    codesIndex1 = 0;
+                }
                 rowA = float(row) / float(renderHeight);
                 rowB = -rowA + 1.0f;
                 rowC = -fabs(rowA - 0.5f) + 1.0f;
@@ -262,14 +317,14 @@ void RenderEqualizer::EnableVisualizer(std::vector<double>& freq, std::mutex& ma
                 char character[2] = {jsonFileReader.currentTheme.customCharacter, '\0'};
                 
                 sprintf_s(tempArray, sizeof(tempArray), "\033[38;2;%d;%d;%dm\033[48;2;%d;%d;%dm:%s\033[0m", color8Bit[0], color8Bit[1], color8Bit[2], 
-                    SafeDivide<unsigned char, unsigned char>(color8Bit[0], ((16 * rowA) + 8)), 
-                    SafeDivide<unsigned char, unsigned char>(color8Bit[1], ((16 * rowA) + 8)), 
-                    SafeDivide<unsigned char, unsigned char>(color8Bit[2], ((16 * rowA) + 8)), (jsonFileReader.currentTheme.useRandomCharacters) ? UTF8Codes[rand() % sizeofCodes] : character);
+                    SafeDivide<unsigned char, unsigned char>(color8Bitbg[0], ((16 * rowA) + 8)), 
+                    SafeDivide<unsigned char, unsigned char>(color8Bitbg[1], ((16 * rowA) + 8)), 
+                    SafeDivide<unsigned char, unsigned char>(color8Bitbg[2], ((16 * rowA) + 8)), (jsonFileReader.currentTheme.useRandomCharacters) ? ((IsCorrectRow(row)) ? UTF8Codes[codesIndex + codesIndex1] : UTF8Codes[rand() % sizeofCodes]) : character);
                 
                 sprintf_s(tempArray1, sizeof(tempArray1), "\033[38;2;%d;%d;%dm\033[48;2;%d;%d;%dm  \033[0m", color8Bit[0], color8Bit[1], color8Bit[2], 
-                    SafeDivide<unsigned char, unsigned char>(color8Bit[0], ((16 * rowA) + 8)), 
-                    SafeDivide<unsigned char, unsigned char>(color8Bit[1], ((16 * rowA) + 8)), 
-                    SafeDivide<unsigned char, unsigned char>(color8Bit[2], ((16 * rowA) + 8)));
+                    SafeDivide<unsigned char, unsigned char>(color8Bitbg[0], ((16 * rowA) + 8)), 
+                    SafeDivide<unsigned char, unsigned char>(color8Bitbg[1], ((16 * rowA) + 8)), 
+                    SafeDivide<unsigned char, unsigned char>(color8Bitbg[2], ((16 * rowA) + 8)));
 
                 if (themeMode == ThemeMode::Mode0) { 
                     if (row <= barHeight) {
@@ -286,8 +341,14 @@ void RenderEqualizer::EnableVisualizer(std::vector<double>& freq, std::mutex& ma
                 } else if (themeMode == ThemeMode::Mode4) {
                     frame += tempArray;
                 }
+                if (timer >= time) {
+                    codesIndex++;
+                    timer = 0;
+                }
+                codesIndex1++;
             }
             if (row > 1) frame += '\n'; 
+            timer++;
         }
 
         // Use \033[H to jump to top-left, \033[J to clear what's below the new frame
