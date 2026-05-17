@@ -153,5 +153,5 @@ The easiest way for Windows developers.
 [FFTW (GitHub)](https://github.com/FFTW/fftw3)
 
 ## Contributors
-A massive thank you to everyone who has helped build and optimize spectrum. <br>
+A massive thank you to everyone who has helped build and optimize spectrum! <br>
 Check out [Contributors Hall of Fame](CONTRIBUTORS.md).
