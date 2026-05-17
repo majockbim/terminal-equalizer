@@ -40,7 +40,7 @@ public:
     void Display(); // general volume level
     void DisplayBuffer(); // print float values of buffer
 
-    void EnableVisualizer(std::vector<double>& freq, std::mutex& magMutex, int sampleRate, const JsonFileReader& jsonFileReader);
+    void EnableVisualizer(std::vector<double>& freq, std::mutex& magMutex, int sampleRate, JsonFileReader& jsonFileReader);
 
 private:
     CONSOLE_SCREEN_BUFFER_INFO csbi;        

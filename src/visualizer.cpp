@@ -17,6 +17,7 @@
 */
 
 #include "../inc/ui/visualizer.hpp"
+#include <cstring>
 
 #define AsciiRgb(k, r, g, b) "\033[" #k ";2;" #r ";" #g ";" #b "m"
 
@@ -60,8 +61,7 @@ bool __cdecl IsCorrectRow(int row) {
     return false;
 }
 
-void RenderEqualizer::EnableVisualizer(std::vector<double>& freq, std::mutex& magMutex, int sampleRate, JsonFileReader& jsonFileReader) 
-{
+void RenderEqualizer::EnableVisualizer(std::vector<double>& freq, std::mutex& magMutex, int sampleRate, JsonFileReader& jsonFileReader) {
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
     termWidth  = csbi.srWindow.Right - csbi.srWindow.Left;
     termHeight = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
@@ -105,9 +105,9 @@ void RenderEqualizer::EnableVisualizer(std::vector<double>& freq, std::mutex& ma
         while (index0 < themesArraySize) {
             if (GetAsyncKeyState(jsonFileReader.themes.at(index0).key) & 0x8000) {
                 std::memcpy(&jsonFileReader.currentTheme, &jsonFileReader.themes.at(index0), sizeof(struct Theme));
-                strcpy_s(jsonFileReader.currentTheme.themeName, sizeof(jsonFileReader.currentTheme.themeName), jsonFileReader.themes.at(index0).themeName);
-                strcpy_s(jsonFileReader.currentTheme.themeId, sizeof(jsonFileReader.currentTheme.themeId), jsonFileReader.themes.at(index0).themeId);
-                strcpy_s(jsonFileReader.currentTheme.themeMode, sizeof(jsonFileReader.currentTheme.themeMode), jsonFileReader.themes.at(index0).themeMode);
+                strcpy_s((char*)jsonFileReader.currentTheme.themeName, sizeof(jsonFileReader.currentTheme.themeName), jsonFileReader.themes.at(index0).themeName);
+                strcpy_s((char*)jsonFileReader.currentTheme.themeId, sizeof(jsonFileReader.currentTheme.themeId), jsonFileReader.themes.at(index0).themeId);
+                strcpy_s((char*)jsonFileReader.currentTheme.themeMode, sizeof(jsonFileReader.currentTheme.themeMode), jsonFileReader.themes.at(index0).themeMode);
                 themeChanged = true;
             }
             index0++;
@@ -161,8 +161,8 @@ void RenderEqualizer::EnableVisualizer(std::vector<double>& freq, std::mutex& ma
                     int binLow  = (int)(fLow * 1201 / (sampleRate / 2.f));
                     int binHigh = (int)(fHigh * 1201 / (sampleRate / 2.f));
                     
-                    binLow  = max(0, min(binLow, 1200));
-                    binHigh = max(0, min(binHigh, 1200));
+                    binLow  = std::max(0, std::min(binLow, 1200));
+                    binHigh = std::max(0, std::min(binHigh, 1200));
                     if (binLow >= binHigh) binHigh = binLow + 1;
                     if (binHigh > (int)freq.size()) binHigh = (int)freq.size();
                     

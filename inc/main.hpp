@@ -21,6 +21,7 @@
 #include <cstddef>
 #include <csignal>
 #include <atomic>
+#include <windows.h>
 #include <consoleapi3.h>
 #include <thread>
 
